@@ -13,7 +13,7 @@ class Alien(Sprite):
 
         # Загрузка изображения пришельца и назначения атрибута rect.
         self.image = pygame.image.load("images/alien.bmp")
-        self.image = pygame.transform.scale(self.image, (50, 50))  # ширина, высота
+        self.image = pygame.transform.scale(self.image, (90, 90))  # ширина, высота
         self.rect = self.image.get_rect()
 
         # Каждый новый пришелец появляется в левом верхнем углу экрана.
