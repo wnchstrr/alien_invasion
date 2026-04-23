@@ -10,6 +10,7 @@ from game_stats import GameStats
 from scoreboard import Scoreboard
 from settings import Settings
 from ship import Ship
+from storage import JsonStorage
 
 
 class AlienInvasion:
@@ -17,6 +18,7 @@ class AlienInvasion:
 
     def __init__(self):
         """ "Инициализирует игру и создает новые игровые ресурсы"""
+        storage = JsonStorage("records.json")
         pygame.init()
         self.clock = pygame.time.Clock()
         self.settings = Settings()
@@ -54,8 +56,9 @@ class AlienInvasion:
     def _ship_hit(self):
         """Обрабатывает столкновения корабля с пришельцем."""
         if self.stats.ships_left > 0:
-            # Уменьшение ships_left.
+            # Уменьшение ships_left и обновление панели счета.
             self.stats.ships_left -= 1
+            self.sb.prep_ships()
 
             # Очистка групп aliens и bullets.
             self.aliens.empty()
@@ -88,6 +91,9 @@ class AlienInvasion:
         """Запускает новую игру при нажатии кнопки Play"""
         if self.play_button.rect.collidepoint(mouse_pos):
             self.start_game()
+            self.sb.prep_score()
+            self.sb.prep_level()
+            self.sb.prep_ships()
         elif self.easy_button.rect.collidepoint(mouse_pos):
             self.settings.set_difficulty("easy")
             self.start_game()
@@ -183,6 +189,11 @@ class AlienInvasion:
             self.bullets.empty()
             self._create_fleet()
             self.settings.increase_speed()
+
+            # Увеличение уровня.
+            self.stats.level += 1
+            self.sb.prep_level()
+
 
     def _update_aliens(self):
         """

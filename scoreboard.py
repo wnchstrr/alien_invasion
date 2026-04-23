@@ -1,4 +1,6 @@
 import pygame.font
+from pygame.sprite import Group
+from ship import Ship
 
 
 class Scoreboard:
@@ -6,28 +8,54 @@ class Scoreboard:
 
     def __init__(self, ai_game):
         """Инициализирует атрибуты подсчета очков."""
+        self.ai_game = ai_game
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()
         self.settings = ai_game.settings
         self.stats = ai_game.stats
 
+        # Корректировка отображения кораблей в левом верхнем углу.
+        self.ship_image = pygame.image.load("images/lives.bmp")
+        self.ship_image = pygame.transform.scale(self.ship_image, (50, 50))
+
         # Настройка шрифта лоя вывода счета.
         self.text_color = (255, 255, 255)
         self.font = pygame.font.SysFont(None, 48)
 
-            # Подготовка исходного изображения счета.
-        self.prep_score()
-
         # Подготовка изображений счетов.
         self.prep_score()
         self.prep_high_score()
-        
+        self.prep_level()
+        self.prep_ships()
+
+    def prep_ships(self):
+        """Сообщает количество оставшихся кораблей."""
+        self.ships = Group()
+        for ship_number in range(self.stats.ships_left):
+            ship = Ship(self.ai_game)
+            ship.rect.x = 10 + ship_number * ship.rect.width
+            ship.rect.y = 10
+            self.ships.add(ship)
+
+    def prep_level(self):
+        """Преобразует уровень в графическое изображение."""
+        level_str = str(self.stats.level)
+        self.level_image = self.font.render(
+            level_str, True, self.text_color, self.settings.bg_color
+        )
+
+        # Уровень выводится под текущим счетом.
+        self.level_rect = self.level_image.get_rect()
+        self.level_rect.right = self.score_rect.right
+        self.level_rect.top = self.score_rect.bottom + 10
+
     def prep_score(self):
         """Преобразует текущий счет в графичекское изображение."""
         rounded_score = round(self.stats.score, -1)
         score_str = f"{rounded_score:,}"
-        self.score_image = self.font.render(score_str, True,
-                self.text_color, self.settings.bg_color)
+        self.score_image = self.font.render(
+            score_str, True, self.text_color, self.settings.bg_color
+        )
 
         # Вывод счета в правой верхней части экрана.
         self.score_rect = self.score_image.get_rect()
@@ -35,16 +63,24 @@ class Scoreboard:
         self.score_rect.top = 20
 
     def show_score(self):
-        """Выводит счет на экран."""
-        self.screen.blit(self.score_image, self.score_rect)  
+        """Выводит счета, уровень и количество кораблей на экран."""
+        self.screen.blit(self.score_image, self.score_rect)
         self.screen.blit(self.high_score_image, self.high_score_rect)
+        self.screen.blit(self.level_image, self.level_rect)
+
+        for i in range(self.stats.ships_left):
+            rect = self.ship_image.get_rect()
+            rect.x = 12 + i * 60
+            rect.y = 10
+            self.screen.blit(self.ship_image, rect)
 
     def prep_high_score(self):
         """Преобразует рекордный счет в графическое изображение."""
         high_score = round(self.stats.high_score, -1)
         high_score_str = f"{high_score:,}"
-        self.high_score_image = self.font.render(high_score_str, True,
-                self.text_color, self.settings.bg_color)
+        self.high_score_image = self.font.render(
+            high_score_str, True, self.text_color, self.settings.bg_color
+        )
 
         # Рекорд выравнивается по центру верхней стороны экрана.
         self.high_score_rect = self.high_score_image.get_rect()
@@ -56,5 +92,5 @@ class Scoreboard:
         if self.stats.score > self.stats.high_score:
             self.stats.high_score = self.stats.score
             self.prep_high_score()
-
-                
+        self.stats.high_score = self.stats.score
+        self.ai_game.stats.storage.save(self.stats.high_score)
