@@ -18,8 +18,9 @@ class AlienInvasion:
 
     def __init__(self):
         """ "Инициализирует игру и создает новые игровые ресурсы"""
-        storage = JsonStorage("records.json")
         pygame.init()
+        pygame.mixer_music.load("sounds/bg.ogg")
+        pygame.mixer.music.play(-1)  # -1 = зациклить
         self.clock = pygame.time.Clock()
         self.settings = Settings()
 
@@ -73,6 +74,7 @@ class AlienInvasion:
         else:
             self.game_active = False
             pygame.mouse.set_visible(True)
+            pygame.mixer.music.stop()
 
     def _check_events(self):
         """Обрабатывает нажатия клавиш и события мыши"""
@@ -193,7 +195,6 @@ class AlienInvasion:
             # Увеличение уровня.
             self.stats.level += 1
             self.sb.prep_level()
-
 
     def _update_aliens(self):
         """

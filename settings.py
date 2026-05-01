@@ -15,7 +15,7 @@ class Settings:
         # Настройки снарядов
         self.bullet_width = 7
         self.bullet_height = 15
-        self.bullet_color = (255, 140, 0)
+        self.bullet_color = (255, 215, 0)
         self.bullet_speed = 5.5
 
         # Настройка пришельцев
@@ -39,7 +39,7 @@ class Settings:
 
         # Подсчет очков
         self.alien_points = 50
-    
+
     def increase_speed(self):
         """Увеличивает настройки скорости и стоимость пришельцев."""
         self.ship_speed *= self.speedup_scale
